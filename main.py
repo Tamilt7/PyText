@@ -3,10 +3,16 @@ from tkinter import *
 from tkinter.scrolledtext import ScrolledText
 from tkinter import filedialog, messagebox
 
-window = Tk()
-window.title("PyText")
-window.resizable(0, 0)
 
+# Global variables
+
+filename = "Unnamed"
+fd = None
+
+
+window = Tk()
+window.title(filename + " - PyText")
+window.resizable(0, 0)
 textbox = ScrolledText(window, width=150, height=40)
 
 
@@ -14,40 +20,75 @@ textbox = ScrolledText(window, width=150, height=40)
 
 
 def cmdNew():
-    pass
+    global fd
+    x = messagebox.askyesnocancel("Warning!!", "Do you want to save the current file?")
+    if x:
+        cmdSave()
+    elif x is False:
+        pass
+    else:
+        return
+
+    fd = None
     textbox.delete(1.0, END)
 
 
 def cmdOpen():
-    fd = filedialog.askopenfile(parent=window)
+    global fd
+    x = messagebox.askyesnocancel("Warning!!", "Do you want to save the current file?")
+    if x:
+        cmdSave()
+    elif x is None:
+        return
+    fd = filedialog.askopenfile(parent=window, mode="r")
     text = fd.read()
-    textbox.delete(1.0, END)
-    textbox.insert(1.0, text)
+    textbox.delete(0.0, END)
+    textbox.insert(0.0, text)
 
 
 def cmdSave():
-    fd = filedialog.asksaveasfile(parent=window, mode="w", defaultextension=".txt")
+    global fd
     text = textbox.get(0.0, END)
+    if fd is None:
+        files = [("All files", "*.*"), ("Text files", ".txt"), ("Python files", ".py")]
+        fd = filedialog.asksaveasfile(parent=window, mode="w", defaultextension=".txt", filetypes=files)
+        if fd:
+            print(fd)
+        else:
+            return
+    # else:
+    #     fd.mode = "w"
+
+    try:
+        fd.write(text)
+        print(fd)
+    except:
+        messagebox.showerror(title="Error", message="Problem writing file!!")
+        type(fd)
+
+
+def cmdSaveas():
+    global fd
+    text = textbox.get(0.0, END)
+
+    files = [("All files", "*.*"), ("Text files", ".txt"), ("Python files", ".py")]
+    fd = filedialog.asksaveasfile(parent=window, mode="w", defaultextension=".txt", filetypes=files)
+    if fd:
+        print(fd)
+    else:
+        return
+
     try:
         fd.write(text)
     except:
         messagebox.showerror(title="Error", message="Problem writing file!!")
 
-def cmdSaveas():
-    pass
-
 
 def cmdExit():
+    x = messagebox.askyesnocancel("Warning!!", "Do you want to save the current file?")
+    if x:
+        cmdSave()
     window.destroy()
-
-
-
-
-
-
-
-
-
 
 
 menuBar = Menu(window)
