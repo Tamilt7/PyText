@@ -7,12 +7,11 @@ from tkinter import filedialog, messagebox
 # Global variables
 
 filename = "Unnamed"
-fd = None
-
+unnamed_flag = True
 
 window = Tk()
 window.title(filename + " - PyText")
-window.resizable(0, 0)
+# window.resizable(0, 0)
 textbox = ScrolledText(window, width=150, height=40)
 
 
@@ -20,7 +19,9 @@ textbox = ScrolledText(window, width=150, height=40)
 
 
 def cmdNew():
-    global fd
+
+    global filename, unnamed_flag
+
     x = messagebox.askyesnocancel("Warning!!", "Do you want to save the current file?")
     if x:
         cmdSave()
@@ -29,33 +30,50 @@ def cmdNew():
     else:
         return
 
-    fd = None
     textbox.delete(1.0, END)
+
+    filename, unnamed_flag = "Unnamed", True
+    window.title(filename + " - PyText")
 
 
 def cmdOpen():
-    global fd
+
+    global filename, unnamed_flag
+
     x = messagebox.askyesnocancel("Warning!!", "Do you want to save the current file?")
     if x:
         cmdSave()
     elif x is None:
         return
+
     fd = filedialog.askopenfile(parent=window, mode="r")
-    text = fd.read()
+    if fd:
+        pass
+    else:
+        return
+
     textbox.delete(0.0, END)
+    text = fd.read()
     textbox.insert(0.0, text)
+
+    filename, unnamed_flag = fd.name, False
+    window.title(filename + " - PyText")
 
 
 def cmdSave():
-    global fd
+
+    global unnamed_flag, filename
+
     text = textbox.get(0.0, END)
-    if fd is None:
+    if unnamed_flag:
         files = [("All files", "*.*"), ("Text files", ".txt"), ("Python files", ".py")]
         fd = filedialog.asksaveasfile(parent=window, mode="w", defaultextension=".txt", filetypes=files)
         if fd:
             print(fd)
         else:
             return
+    else:
+        fd = open(filename, "w")
     # else:
     #     fd.mode = "w"
 
@@ -65,10 +83,17 @@ def cmdSave():
     except:
         messagebox.showerror(title="Error", message="Problem writing file!!")
         type(fd)
+    finally:
+        fd.close()
+
+    unnamed_flag, filename = False, fd.name
+    window.title(filename + " - PyText")
 
 
 def cmdSaveas():
-    global fd
+
+    global unnamed_flag, filename
+
     text = textbox.get(0.0, END)
 
     files = [("All files", "*.*"), ("Text files", ".txt"), ("Python files", ".py")]
@@ -83,12 +108,35 @@ def cmdSaveas():
     except:
         messagebox.showerror(title="Error", message="Problem writing file!!")
 
+    unnamed_flag, filename = False, fd.name
+    window.title(filename + " - PyText")
+
 
 def cmdExit():
     x = messagebox.askyesnocancel("Warning!!", "Do you want to save the current file?")
     if x:
         cmdSave()
     window.destroy()
+
+
+def cmdNew1(event):
+
+    cmdNew()
+
+
+def cmdOpen1(event):
+
+    cmdOpen()
+
+
+def cmdSave1(event):
+
+    cmdSave()
+
+
+def cmdSaveas1(event):
+
+    cmdSaveas()
 
 
 menuBar = Menu(window)
@@ -102,12 +150,17 @@ menuBar.add_cascade(label="File", menu=fileMenu)
 menuBar.add_cascade(label="Edit", menu=editMenu)
 menuBar.add_cascade(label="Help", menu=helpMenu)
 
-fileMenu.add_command(label="New", command=cmdNew)
-fileMenu.add_command(label="Open", command=cmdOpen)
-fileMenu.add_command(label="Save", command=cmdSave)
-fileMenu.add_command(label="SaveAs", command=cmdSaveas)
+fileMenu.add_command(label="New                      (Ctr+N)", command=cmdNew)
+fileMenu.add_command(label="Open                    (Ctr+N)", command=cmdOpen)
+fileMenu.add_command(label="Save                      (Ctr+S)", command=cmdSave)
+fileMenu.add_command(label="SaveAs       (Ctr+Shift+S)", command=cmdSaveas)
 fileMenu.add_command(label="Exit", command=cmdExit)
 
 textbox.pack()
+window.bind("<Control_L><n>", cmdNew1)
+window.bind("<Control_L><o>", cmdOpen1)
+window.bind("<Control_L><s>", cmdSave1)
+window.bind("<Control_L><Shift_L><s>", cmdSaveas1)
+
 window.mainloop()
 
