@@ -2,6 +2,7 @@
 from tkinter import *
 from tkinter.scrolledtext import ScrolledText
 from tkinter import filedialog, messagebox
+# import clipboard
 
 
 # Global variables
@@ -22,7 +23,8 @@ def cmdNew():
 
     global filename, unnamed_flag
 
-    x = messagebox.askyesnocancel("Warning!!", "Do you want to save the current file?")
+    x = messagebox.askyesnocancel("Warning!!",
+                                  "Do you want to save the current file?")
     if x:
         cmdSave()
     elif x is False:
@@ -40,7 +42,8 @@ def cmdOpen():
 
     global filename, unnamed_flag
 
-    x = messagebox.askyesnocancel("Warning!!", "Do you want to save the current file?")
+    x = messagebox.askyesnocancel("Warning!!",
+                                  "Do you want to save the current file?")
     if x:
         cmdSave()
     elif x is None:
@@ -66,8 +69,13 @@ def cmdSave():
 
     text = textbox.get(0.0, END)
     if unnamed_flag:
-        files = [("All files", "*.*"), ("Text files", ".txt"), ("Python files", ".py")]
-        fd = filedialog.asksaveasfile(parent=window, mode="w", defaultextension=".txt", filetypes=files)
+        files = [("All files", "*.*"),
+                 ("Text files", ".txt"),
+                 ("Python files", ".py")]
+        fd = filedialog.asksaveasfile(parent=window,
+                                      mode="w",
+                                      defaultextension=".txt",
+                                      filetypes=files)
         if fd:
             print(fd)
         else:
@@ -81,7 +89,8 @@ def cmdSave():
         fd.write(text)
         print(fd)
     except:
-        messagebox.showerror(title="Error", message="Problem writing file!!")
+        messagebox.showerror(title="Error",
+                             message="Problem writing file!!")
         type(fd)
     finally:
         fd.close()
@@ -96,8 +105,14 @@ def cmdSaveas():
 
     text = textbox.get(0.0, END)
 
-    files = [("All files", "*.*"), ("Text files", ".txt"), ("Python files", ".py")]
-    fd = filedialog.asksaveasfile(parent=window, mode="w", defaultextension=".txt", filetypes=files)
+    files = [("All files", "*.*"),
+             ("Text files", ".txt"),
+             ("Python files", ".py")]
+
+    fd = filedialog.asksaveasfile(parent=window,
+                                  mode="w",
+                                  defaultextension=".txt",
+                                  filetypes=files)
     if fd:
         print(fd)
     else:
@@ -113,9 +128,11 @@ def cmdSaveas():
 
 
 def cmdExit():
-    x = messagebox.askyesnocancel("Warning!!", "Do you want to save the current file?")
+    x = messagebox.askyesnocancel("Warning!!",
+                                  "Do you want to save the current file?")
     if x:
         cmdSave()
+
     window.destroy()
 
 
@@ -139,7 +156,16 @@ def cmdSaveas1(event):
     cmdSaveas()
 
 
+def cmdPaste():
+    pass
+
+
+def cmdPaste1():
+    pass
+
+
 menuBar = Menu(window)
+menuBar2 = Menu(window)
 window.configure(menu=menuBar)
 
 fileMenu = Menu(menuBar, tearoff=False)
@@ -150,17 +176,30 @@ menuBar.add_cascade(label="File", menu=fileMenu)
 menuBar.add_cascade(label="Edit", menu=editMenu)
 menuBar.add_cascade(label="Help", menu=helpMenu)
 
-fileMenu.add_command(label="New                      (Ctr+N)", command=cmdNew)
-fileMenu.add_command(label="Open                    (Ctr+N)", command=cmdOpen)
-fileMenu.add_command(label="Save                      (Ctr+S)", command=cmdSave)
-fileMenu.add_command(label="SaveAs       (Ctr+Shift+S)", command=cmdSaveas)
-fileMenu.add_command(label="Exit", command=cmdExit)
+fileMenu.add_command(label="New                      (Ctr+N)",
+                     command=cmdNew)
+fileMenu.add_command(label="Open                    (Ctr+N)",
+                     command=cmdOpen)
+fileMenu.add_command(label="Save                      (Ctr+S)",
+                     command=cmdSave)
+fileMenu.add_command(label="SaveAs       (Ctr+Shift+S)",
+                     command=cmdSaveas)
+fileMenu.add_command(label="Exit",
+                     command=cmdExit)
+
+editMenu.add_command(label="Cut                      (Ctr+X)",
+                     command=cmdNew1)
+editMenu.add_command(label="Copy                    (Ctr+C)",
+                     command=cmdNew1)
+editMenu.add_command(label="Paste                      (Ctr+V)",
+                     command=cmdNew1)
+
 
 textbox.pack()
 window.bind("<Control_L><n>", cmdNew1)
 window.bind("<Control_L><o>", cmdOpen1)
 window.bind("<Control_L><s>", cmdSave1)
 window.bind("<Control_L><Shift_L><s>", cmdSaveas1)
+window.bind("<Control_L><Shift_L><v>", cmdPaste1)
 
 window.mainloop()
-
